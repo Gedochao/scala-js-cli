@@ -18,6 +18,7 @@ jobs:
           submodules: true
       - uses: VirtusLab/scala-cli-setup@v1
       - run: scala-cli fmt . --check
+      - run: ./mill -i mill.scalalib.scalafmt/checkFormatAll
 
   scalafix:
     timeout-minutes: 15
