@@ -304,12 +304,36 @@ object Scalajsld {
 
       val useClosure = options.fullOpt && options.moduleKind != ModuleKind.ESModule
 
+      val logger = new ScalaConsoleLogger(options.logLevel)
+
+      val esFeatures =
+        if (options.emitWasm) {
+          val esVersion =
+            if (options.esFeatures.esVersion >= ESVersion.ES2022)
+              options.esFeatures.esVersion
+            else if (options.esFeatures == ESFeatures.Defaults) {
+              logger.debug(
+                s"WebAssembly backend requires ECMAScript 2022 or later, defaulting to ${ESVersion.ES2022}"
+              )
+              ESVersion.ES2022
+            }
+            else {
+              logger.warn(
+                s"""WebAssembly backend requires ECMAScript 2022 or later, using ${options.esFeatures.esVersion}"""
+              )
+              options.esFeatures.esVersion
+            }
+          options.esFeatures.withESVersion(esVersion).withUseWebAssembly(true)
+        }
+        else
+          options.esFeatures
+
       val config = StandardConfig()
         .withSemantics(semantics)
         .withModuleKind(options.moduleKind)
         .withModuleSplitStyle(moduleSplitStyle)
         .withOutputPatterns(options.outputPatterns)
-        .withESFeatures(options.esFeatures)
+        .withESFeatures(esFeatures)
         .withCheckIR(options.checkIR)
         .withOptimizer(!options.noOpt)
         .withParallel(true)
@@ -320,10 +344,8 @@ object Scalajsld {
         .withBatchMode(true)
         .withJSHeader(options.jsHeader)
         .withMinify(options.fullOpt)
-        .withExperimentalUseWebAssembly(options.emitWasm)
 
       val linker = StandardImpl.linker(config)
-      val logger = new ScalaConsoleLogger(options.logLevel)
       val cache  = StandardImpl.irFileCache().newCache
 
       val stdinLinesIterator = scala.io.Source.stdin.getLines()
