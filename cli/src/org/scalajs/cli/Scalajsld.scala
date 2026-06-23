@@ -153,8 +153,9 @@ object Scalajsld {
       opt[String]("moduleSplitStyle")
         .action((x, c) => c.copy(moduleSplitStyle = x))
         .text(
-          "Module splitting style " + ModuleSplitStyleRead.All
-            .mkString("(", ", ", ")")
+          "Module splitting style " +
+            ModuleSplitStyleRead.All
+              .mkString("(", ", ", ")")
         )
       opt[Seq[String]]("smallModuleForPackages")
         .valueName("<package1>,<package2>...")
