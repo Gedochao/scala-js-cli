@@ -18,7 +18,7 @@ import scala.annotation.unused
 import scala.concurrent.duration.*
 import scala.util.Properties.isWin
 import com.goyeau.mill.scalafix.ScalafixModule
-import com.lumidion.sonatype.central.client.core.{PublishingType, SonatypeCredentials}
+import mill.javalib.publish.{PublishingType, SonatypeCredentials}
 
 object Versions {
   def scala213                = "2.13.18"
