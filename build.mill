@@ -21,7 +21,7 @@ import com.goyeau.mill.scalafix.ScalafixModule
 import mill.javalib.publish.{PublishingType, SonatypeCredentials}
 
 object Versions {
-  def scala213                = "2.13.18"
+  def scala3                  = "3.3.8"
   def scalaJsVersion          = "1.22.0"
   def jsoniterVersion         = "2.38.16"
   def scalaJsImportMapVersion = "0.1.1"
@@ -36,9 +36,9 @@ object Versions {
 
 trait ScalaJsCliModule extends ScalaModule with ScalafixModule {
   override def scalacOptions: T[Seq[String]] =
-    super.scalacOptions() ++ Seq("-Wunused", "-deprecation")
+    super.scalacOptions() ++ Seq("-Wunused:all", "-deprecation")
 
-  def scalaVersion: T[String] = Versions.scala213
+  def scalaVersion: T[String] = Versions.scala3
 }
 
 object cli extends Cli
@@ -47,12 +47,14 @@ trait Cli extends ScalaJsCliModule with ScalaJsCliPublishModule {
   def artifactName: T[String] = "scalajs" + super.artifactName()
 
   def mvnDeps: T[Seq[Dep]] = super.mvnDeps() ++ Seq(
-    mvn"org.scala-js::scalajs-linker:${Versions.scalaJsVersion}",
+    mvn"org.scala-js::scalajs-linker:${Versions.scalaJsVersion}".withDottyCompat(scalaVersion()),
     mvn"com.github.scopt::scopt:${Versions.scoptVersion}",
     mvn"com.lihaoyi::os-lib:${Versions.osLibVersion}",
     mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:${Versions.jsoniterVersion}", // This is the java8 version of jsoniter, according to scala-cli build
     mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-macros:${Versions.jsoniterVersion}", // This is the java8 version of jsoniter, according to scala-cli build
-    mvn"com.armanbilge::scalajs-importmap:${Versions.scalaJsImportMapVersion}"
+    mvn"com.armanbilge::scalajs-importmap:${Versions.scalaJsImportMapVersion}".withDottyCompat(
+      scalaVersion()
+    )
   )
 
   def mainClass: T[Option[String]] = Some("org.scalajs.cli.Scalajsld")
